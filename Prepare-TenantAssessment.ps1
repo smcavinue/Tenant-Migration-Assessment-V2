@@ -188,12 +188,21 @@ else {
         $directoryRole = 'Global Reader'
         ## Find the ObjectID of 'Global Reader'
         $RoleId = (Get-MgDirectoryRole | Where-Object { $_.displayname -eq $directoryRole }).Id
+        ##If Role is not activated, activate it
+        if (!$RoleId) {
+            $RoleId = (Get-MgDirectoryRoletemplate | Where-Object { $_.displayname -eq $directoryRole }).ID
+            $RoleId = (New-MgDirectoryRole -RoleTemplateId $RoleId).id
+        }
         ## Add the service principal to the directory role
         New-MgDirectoryRoleMemberByRef -DirectoryRoleId $RoleId  -BodyParameter @{"@odata.id" = "https://graph.microsoft.com/v1.0/directoryObjects/$($sp.Id)"}
         $directoryRole = 'Exchange Administrator'
         ## Find the ObjectID of 'Global Reader'
         $RoleId = $null
         $RoleId = (Get-MgDirectoryRole | Where-Object { $_.displayname -eq $directoryRole }).ID
+        if (!$RoleId) {
+            $RoleId = (Get-MgDirectoryRoletemplate | Where-Object { $_.displayname -eq $directoryRole }).ID
+            $RoleId = (New-MgDirectoryRole -RoleTemplateId $RoleId).id
+        }
         ## Add the service principal to the directory role
         New-MgDirectoryRoleMemberByRef -DirectoryRoleId $RoleId  -BodyParameter @{"@odata.id" = "https://graph.microsoft.com/v1.0/directoryObjects/$($sp.Id)"}
     }

@@ -49,7 +49,7 @@ function UpdateProgress {
     Write-Progress -Activity "Tenant Assessment in Progress" -Status "Processing Task $ProgressTracker of $($TotalProgressTasks): $ProgressStatus" -PercentComplete (($ProgressTracker / $TotalProgressTasks) * 100)
 }
 $ProgressTracker = 1
-$TotalProgressTasks = 27
+$TotalProgressTasks = 28
 $ProgressStatus = $null
 
 if ($IncludeGroupMembership) {
@@ -509,23 +509,27 @@ If ($IncludeLists) {
 if ($IncludePlans) {
     $ProgressStatus = "Enumerating Planner Plans - This may take some time..."
     UpdateProgress
-    $unifiedGroups = $Groups | ? { ($_.grouptypes -Contains "unified") 
-        $PlanOutput = @()
-        foreach ($unifiedgroup in $unifiedGroups) {
-            [array]$Plans = Get-MgGroupPlannerPlan -GroupId $unifiedgroup.id
-            foreach ($plan in $plans) {
-                $PlanObject = [PSCustomObject]@{
-                    PlanID    = $plan.id
-                    PlanName  = $plan.title
-                    GroupID   = $unifiedgroup.id
-                    GroupName = $unifiedgroup.displayName
-                }
-                $PlanOutput += $PlanObject
+    $unifiedGroups = $Groups | ? { ($_.grouptypes -Contains "unified") }
+    $PlanOutput = @()
+    $PlanNumber = 1
+    foreach ($unifiedgroup in $unifiedGroups) {
+        $ProgressStatus = "Enumerating Planner Plans for Group $PlanNumber of $($unifiedgroups.count) -  $($unifiedgroup.displayname)..."
+        UpdateProgress
+        $PlanNumber++
+        [array]$Plans = Get-MgGroupPlannerPlan -GroupId $unifiedgroup.id
+        foreach ($plan in $plans) {
+            $PlanObject = [PSCustomObject]@{
+                PlanID    = $plan.id
+                PlanName  = $plan.title
+                GroupID   = $unifiedgroup.id
+                GroupName = $unifiedgroup.displayName
             }
+            $PlanOutput += $PlanObject
         }
     }
-    $ProgressTracker++
 }
+$ProgressTracker++
+
 ##Tidy up Proxyaddresses
 foreach ($user in $users) {
     $user | Add-member -MemberType NoteProperty -Name "Email Addresses" -Value ($user.proxyaddresses -join ';') -Force

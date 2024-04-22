@@ -931,6 +931,10 @@ Try {
         ##Export Lists Tab
         $ListOutput | Export-Excel -Path ("$FilePath\$Filename") -WorksheetName "Lists" -AutoSize -AutoFilter -FreezeTopRow -BoldTopRow
     }
+    If ($IncludePlans) {
+        ##Export Planner Plans Tab
+        $PlanOutput | Export-Excel -Path ("$FilePath\$Filename") -WorksheetName "Planner Plans" -AutoSize -AutoFilter -FreezeTopRow -BoldTopRow
+    }
 }
 catch {
     write-host "Error exporting report, check permissions and make sure the file is not open! $_"

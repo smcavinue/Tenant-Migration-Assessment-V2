@@ -206,6 +206,7 @@ foreach ($teamgroup in $TeamGroups) {
     [array]$TeamDetails = Get-MgGroupDrive -GroupId $teamgroup.id
     $teamgroup | Add-Member -MemberType NoteProperty -Name "DocumentLibraries" -Value $TeamDetails.count -Force
     $teamgroup | Add-Member -MemberType NoteProperty -Name "DataSize" -Value ($TeamDetails.quota.used | measure-object -sum).sum -Force
+    ##NOTE: Change for Non-English Tenants
     $teamgroup | Add-Member -MemberType NoteProperty -Name "URL" -Value $TeamDetails[0].webUrl.replace("/Shared%20Documents", "") -Force
 
 }
@@ -388,8 +389,10 @@ $SharePoint = import-csv "$($FilePath)\SharePointReport.csv"
 Remove-Item "$($FilePath)\SharePointReport.csv"
 $SharePoint | Add-Member -MemberType NoteProperty -Name "TeamID" -Value "" -force
 foreach ($Site in $Sharepoint) {
+    ##NOTE: Change for Non-English Tenants
     $DriveLookup = ((Get-MgSiteDrive -siteId $Site.'Site Id' -ErrorAction SilentlyContinue | ? { $_.name -eq "Documents" }).weburl)
     If ($DriveLookup) {
+        ##NOTE: Change for Non-English Tenants
         $Site.'Site URL' = $DriveLookup.replace('/Shared%20Documents', '')
     }
     $Site.TeamID = ($TeamGroups | ? { $_.url -contains $site.'site url' }).id
@@ -464,9 +467,10 @@ If ($IncludeGroupMembership) {
 If ($IncludeDocumentLibraries) {
     $ProgressStatus = "Enumerating Document Libraries - This may take some time..."
     UpdateProgress
-    $Sites = Get-MgSite -All | ? { $_.weburl -notlike "*sites/appcatalog*" -and $_.weburl -notlike "*sites/recordscenter*" -and $_.weburl -notlike "*sites/search*" -and $_.weburl -notlike "*sites/CompliancePolicyCenter" -and $_.weburl -notlike "-my.sharepoint.com*" }
+    $Sites = Get-MgSite -All | ? { $_.weburl -notlike "*sites/appcatalog*" -and $_.weburl -notlike "*sites/recordscenter*" -and $_.weburl -notlike "*sites/search*" -and $_.weburl -notlike "*sites/CompliancePolicyCenter"}
     $LibraryOutput = @()
     foreach ($site in $sites) {
+        ##NOTE: Change for Non-English Tenants
         [array]$Drives = Get-MgSiteDrive -SiteId $site.id | ? { $_.Name -eq "Documents" }
         foreach ($drive in $drives) {
             $LibraryObject = [PSCustomObject]@{
@@ -487,7 +491,7 @@ If ($IncludeDocumentLibraries) {
 If ($IncludeLists) {
     $ProgressStatus = "Enumerating Lists - This may take some time..."
     UpdateProgress
-    $Sites = Get-MgSite -All | ? { $_.weburl -notlike "*sites/appcatalog*" -and $_.weburl -notlike "*sites/recordscenter*" -and $_.weburl -notlike "*sites/search*" -and $_.weburl -notlike "*sites/CompliancePolicyCenter" -and $_.weburl -notlike "-my.sharepoint.com*" }
+    $Sites = Get-MgSite -All | ? { $_.weburl -notlike "*sites/appcatalog*" -and $_.weburl -notlike "*sites/recordscenter*" -and $_.weburl -notlike "*sites/search*" -and $_.weburl -notlike "*sites/CompliancePolicyCenter" }
     $ListOutput = @()
     foreach ($site in $sites) {
         [array]$Lists = Get-MgSiteList -SiteId $site.id | ? { $_.List.template -ne "documentLibrary" }

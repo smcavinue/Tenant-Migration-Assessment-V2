@@ -223,7 +223,7 @@ UpdateProgress
 $ProgressTracker++
 
 ##Get Org Details
-$OrgDetails = Get-MgOrganization -All
+[array]$OrgDetails = Get-MgOrganization -All
 
 $ProgressStatus = "Getting apps..."
 UpdateProgress

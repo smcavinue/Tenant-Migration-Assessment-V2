@@ -15,7 +15,13 @@
             Twitter: @Sean_McAvinue
             Linkedin: https://www.linkedin.com/in/sean-mcavinue-4a058874/
 
+            For full instructions on how to use this script, please visit the blog posts below:
+            https://practical365.com/office-365-migration-plan-assessment/
+            https://practical365.com/microsoft-365-tenant-to-tenant-migration-assessment-version-2/
 
+        .EXAMPLE
+        .\Prepare-TenantAssessment.ps1
+        
     #>
 
 ##

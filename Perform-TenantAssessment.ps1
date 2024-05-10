@@ -14,7 +14,25 @@
         Required - Directory (Tenant) ID of the Azure AD Tenant
 
         .PARAMETER certificateThumbprint
-        Required - Thumbprint of the certificate generated from the prepare-tenantassessment.ps1 script    
+        Required - Thumbprint of the certificate generated from the prepare-tenantassessment.ps1 script
+        
+        .PARAMETER IncludeGroupMembership
+        Optional - Switch to include group membership in the report
+
+        .PARAMETER IncludeMailboxPermissions
+        Optional - Switch to include mailbox permissions in the report
+
+        .PARAMETER IncludeDocumentLibraries
+        Optional - Switch to include document libraries in the report
+
+        .PARAMETER IncludeLists
+        Optional - Switch to include lists in the report
+
+        .PARAMETER IncludePlans
+        Optional - Switch to include Planner plans in the report
+
+        .EXAMPLE
+        Perform-TenantAssessment.ps1 -ClientId "12345678-1234-1234-1234-123456789012" -TenantId "12345678-1234-1234-1234-123456789012" -certificateThumbprint "1234567890123456789012345678901234567890" -IncludeGroupMembership -IncludeMailboxPermissions -IncludeDocumentLibraries -IncludeLists -IncludePlans
 
         .Notes
         For similar scripts check out the links below
@@ -23,7 +41,10 @@
             GitHub: https://github.com/smcavinue
             Twitter: @Sean_McAvinue
             Linkedin: https://www.linkedin.com/in/sean-mcavinue-4a058874/
-
+        
+        For full instructions on how to use this script, please visit the blog posts below:
+        https://practical365.com/office-365-migration-plan-assessment/
+        https://practical365.com/microsoft-365-tenant-to-tenant-migration-assessment-version-2/
 
     #>
 Param(
@@ -216,7 +237,7 @@ UpdateProgress
 $ProgressTracker++
 
 ##Get All License SKUs
-$SKUs = Get-MgSubscribedSku -all
+[array]$SKUs = Get-MgSubscribedSku -all
 
 $ProgressStatus = "Getting organization details..."
 UpdateProgress

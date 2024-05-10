@@ -13,4 +13,4 @@ Version 2 of the tenant migration assessment with improved logic and updated fun
  5) PowerBI Desktop is required to use the Power BI report
 
 Notes:
-1) You may need to ruin disconnect-MgGraph after the prepare script if you wish to run in another tenant
+1) You may need to run disconnect-MgGraph after the prepare script if you wish to run in another tenant

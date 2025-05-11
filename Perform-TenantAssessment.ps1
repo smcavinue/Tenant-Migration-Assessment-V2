@@ -225,7 +225,6 @@ foreach ($teamgroup in $TeamGroups) {
     
 
     $TeamDetails = $null
-    write-host "Get-MgGroupDrive -GroupId $($teamgroup.id)" -ForegroundColor Green
     Try{
         [array]$TeamDetails = Get-MgGroupDrive -GroupId $teamgroup.id -ErrorAction Stop
         $teamgroup | Add-Member -MemberType NoteProperty -Name "DocumentLibraries" -Value $TeamDetails.count -Force

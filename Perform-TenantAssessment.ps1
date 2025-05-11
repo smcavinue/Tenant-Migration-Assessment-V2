@@ -181,12 +181,13 @@ foreach ($teamgroup in $TeamGroups) {
     $ProgressStatus = "Processing Team $i of $($Teamgroups.count)..."
     UpdateProgress
     $i++
-    $ApiUri = "https://graph.microsoft.com/beta/teams/$($Teamgroup.id)/channels"
-    $Teamchannels = ((Invoke-MgGraphRequest -Uri $ApiUri -Method Get).value)
-    $standardchannels = ($teamchannels | ? { $_.membershipType -eq "standard" })
-    $privatechannels = ($teamchannels | ? { $_.membershipType -eq "private" })
-    $outgoingsharedchannels = ($teamchannels | ? { ($_.membershipType -eq "shared") -and (($_.WebUrl) -like "*$($teamgroup.id)*") })
-    $incomingsharedchannels = ($teamchannels | ? { ($_.membershipType -eq "shared") -and ($_.WebURL -notlike "*$($teamgroup.id)*") })
+    #$ApiUri = "https://graph.microsoft.com/beta/teams/$($Teamgroup.id)/channels"
+    #[array]$Teamchannels = ((Invoke-MgGraphRequest -Uri $ApiUri -Method Get).value)
+    [array]$Teamchannels = Get-MgTeamChannel -TeamId $Teamgroup.Id
+    [array]$standardchannels = ($teamchannels | ? { $_.membershipType -eq "standard" })
+    [array]$privatechannels = ($teamchannels | ? { $_.membershipType -eq "private" })
+    [array]$outgoingsharedchannels = ($teamchannels | ? { ($_.membershipType -eq "shared") -and (($_.WebUrl) -like "*$($teamgroup.id)*") })
+    [array]$incomingsharedchannels = ($teamchannels | ? { ($_.membershipType -eq "shared") -and ($_.WebURL -notlike "*$($teamgroup.id)*") })
     $teamgroup | Add-Member -MemberType NoteProperty -Name "StandardChannels" -Value $standardchannels.id.count -Force
     $teamgroup | Add-Member -MemberType NoteProperty -Name "PrivateChannels" -Value $privatechannels.id.count -Force
     $teamgroup | Add-Member -MemberType NoteProperty -Name "SharedChannels" -Value $outgoingsharedchannels.id.count -Force
@@ -224,11 +225,18 @@ foreach ($teamgroup in $TeamGroups) {
     
 
     $TeamDetails = $null
-    [array]$TeamDetails = Get-MgGroupDrive -GroupId $teamgroup.id
-    $teamgroup | Add-Member -MemberType NoteProperty -Name "DocumentLibraries" -Value $TeamDetails.count -Force
-    $teamgroup | Add-Member -MemberType NoteProperty -Name "DataSize" -Value ($TeamDetails.quota.used | measure-object -sum).sum -Force
-    ##NOTE: Change for Non-English Tenants
-    $teamgroup | Add-Member -MemberType NoteProperty -Name "URL" -Value $TeamDetails[0].webUrl.replace("/Shared%20Documents", "") -Force
+    write-host "Get-MgGroupDrive -GroupId $($teamgroup.id)" -ForegroundColor Green
+    Try{
+        [array]$TeamDetails = Get-MgGroupDrive -GroupId $teamgroup.id -ErrorAction Stop
+        $teamgroup | Add-Member -MemberType NoteProperty -Name "DocumentLibraries" -Value $TeamDetails.count -Force
+        $teamgroup | Add-Member -MemberType NoteProperty -Name "DataSize" -Value ($TeamDetails.quota.used | measure-object -sum).sum -Force
+        ##NOTE: Change for Non-English Tenants
+        $teamgroup | Add-Member -MemberType NoteProperty -Name "URL" -Value $TeamDetails[0].webUrl.replace("/Shared%20Documents", "") -Force
+    }
+    Catch {
+        #write-host "Unable to get document libraries for $($teamgroup.displayname) - $($teamgroup.id)" -ForegroundColor Red
+        #write-host "Error: $($_.Exception.Message)" -ForegroundColor Red
+    }
 
 }
 
